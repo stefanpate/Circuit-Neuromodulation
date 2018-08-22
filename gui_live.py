@@ -331,7 +331,7 @@ plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
 
 # Live simulation
-v0 = (0, 0.2, 0.3)
+v0 = (-2.5, -2.4, -1.5)
 
 sstep = 100
 tint = 6000
