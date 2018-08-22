@@ -247,6 +247,15 @@ def update_ultraslow2(val):
     I_ultraslow = I_slow + i4.out(V)
 
     plot_ultra_slow()
+    
+# Input pulse event
+def pulse(event):
+    global solver
+    v = solver.y
+    v[0] = 0
+    v[1] = 0
+    solver.y = v
+    print('slslsl')
 
 # Plot I-V curves
 V = np.arange(-3,3.1,0.1)
@@ -331,9 +340,9 @@ plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
 
 # Button for I_app = pulse(t)
-axsim_button = plt.axes([.8, .01, 0.1, .06])
-sim_button = Button(axsim_button, 'Pulse')
-#sim_button.on_clicked(sim)
+axpulse_button = plt.axes([.8, .01, 0.1, .06])
+pulse_button = Button(axpulse_button, 'Pulse')
+pulse_button.on_clicked(pulse)
 
 # Live simulation
 v0 = (0, 0.2, 0.3)
