@@ -9,7 +9,7 @@ Graphical interface for generating and modulating single neuron behavior.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 import numpy as np
 
 from time import time
@@ -329,6 +329,11 @@ plt.figtext(0.25, 0.34, 'Fast -ve', horizontalalignment = 'center')
 plt.figtext(0.25, 0.19, 'Slow +ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
+
+# Button for I_app = pulse(t)
+axsim_button = plt.axes([.8, .01, 0.1, .06])
+sim_button = Button(axsim_button, 'Pulse')
+#sim_button.on_clicked(sim)
 
 # Live simulation
 v0 = (0, 0.2, 0.3)
