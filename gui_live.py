@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 import numpy as np
 
-from time import time
+from time import time, sleep
 from collections import deque
 from scipy.integrate import BDF
 
@@ -357,8 +357,8 @@ def fun(t, y):
 solver = BDF(fun, 0, v0, np.inf, max_step=sstep)
 
 while plt.fignum_exists(fig.number):
-    #while pause_value:
-     #   pass
+    while pause_value:
+        sleep(3)
     
     st = time()
 
