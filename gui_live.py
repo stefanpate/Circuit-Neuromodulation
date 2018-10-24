@@ -9,10 +9,10 @@ Graphical interface for generating and modulating single neuron behavior.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 import numpy as np
 
-from time import time
+from time import time, sleep
 from collections import deque
 from scipy.integrate import BDF
 
@@ -247,6 +247,10 @@ def update_ultraslow2(val):
     I_ultraslow = I_slow + i4.out(V)
 
     plot_ultra_slow()
+    
+def pause(event):
+    global pause_value
+    pause_value = not(pause_value)
 
 # Plot I-V curves
 V = np.arange(-3,3.1,0.1)
@@ -324,11 +328,19 @@ axiapp = plt.axes([0.1, 0.02, 0.5, 0.03])
 slider_iapp = Slider(axiapp, '$I_{app}$',-3, 3, valinit = i_app_const)
 slider_iapp.on_changed(update_iapp)
 
+# Button for pausing the simulation
+axbutton = plt.axes([0.8, 0.02, 0.1, 0.03])
+button_pause = Button(axbutton, 'Pause')
+button_pause.on_clicked(pause)
+
 # Labels for conductance sliders
 plt.figtext(0.25, 0.34, 'Fast -ve', horizontalalignment = 'center')
 plt.figtext(0.25, 0.19, 'Slow +ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
+
+# Initialize pause value
+pause_value = False
 
 # Live simulation
 v0 = (-2.5, -2.4, -1.5)
@@ -345,6 +357,9 @@ def fun(t, y):
 solver = BDF(fun, 0, v0, np.inf, max_step=sstep)
 
 while plt.fignum_exists(fig.number):
+    while pause_value:
+        plt.pause(0.01)
+    
     st = time()
 
     last_t = solver.t
