@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 import numpy as np
 
-from time import time, sleep
+from time import time
 from collections import deque
 from scipy.integrate import BDF
 
@@ -357,7 +357,7 @@ plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
 
 # Button for I_app = pulse(t)
-axpulse_button = plt.axes([.8, .01, 0.1, .06])
+axpulse_button = plt.axes([.675, 0.02, 0.1, 0.03])
 pulse_button = Button(axpulse_button, 'Pulse')
 pulse_button.on_clicked(pulse)
 
