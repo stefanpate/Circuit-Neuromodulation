@@ -255,6 +255,7 @@ def update_ultraslow2(val):
 # Input pulse event
 def pulse(event):
     global pulse_on, tend, i_app
+    
     # Pulse parameters
     delta_t = 10
     delta_i = 1
