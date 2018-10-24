@@ -248,7 +248,7 @@ def update_ultraslow2(val):
 
     plot_ultra_slow()
     
-def pause(val):
+def pause(event):
     global pause_value
     pause_value = not(pause_value)
 
@@ -358,7 +358,7 @@ solver = BDF(fun, 0, v0, np.inf, max_step=sstep)
 
 while plt.fignum_exists(fig.number):
     while pause_value:
-        sleep(3)
+        plt.pause(0.01)
     
     st = time()
 
