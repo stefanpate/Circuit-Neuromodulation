@@ -32,6 +32,10 @@ voff_us = -1.5
 i_app_const = -2
 i_app = lambda t: i_app_const
 
+# Initial values pulse
+pulse_on = False
+tend = 0
+
 # Define current elements:
 # i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
 i1 = LocalizedConductance(a_f, voff_f, 'fast')
@@ -248,6 +252,19 @@ def update_ultraslow2(val):
 
     plot_ultra_slow()
     
+# Input pulse event
+def pulse(event):
+    global pulse_on, tend, i_app
+    
+    # Pulse parameters
+    delta_t = 10
+    delta_i = 1
+    
+    tend = solver.t + delta_t
+    pulse_on = True
+    
+    i_app = lambda t: (i_app_const + delta_i)
+    
 def pause(event):
     global pause_value
     pause_value = not(pause_value)
@@ -339,6 +356,11 @@ plt.figtext(0.25, 0.19, 'Slow +ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
 
+# Button for I_app = pulse(t)
+axpulse_button = plt.axes([.8, .01, 0.1, .06])
+pulse_button = Button(axpulse_button, 'Pulse')
+pulse_button.on_clicked(pulse)
+
 # Initialize pause value
 pause_value = False
 
@@ -364,6 +386,10 @@ while plt.fignum_exists(fig.number):
 
     last_t = solver.t
     while solver.t - last_t < sstep:
+        # Check for pulse
+        if pulse_on and (solver.t > tend):
+            i_app = lambda t: i_app_const
+            pulse_on = False
         msg = solver.step()
         if msg:
             raise ValueError('solver terminated with message: %s ' % msg)
