@@ -10,8 +10,6 @@ The repository provides a graphical interface to control the behavior of the neu
 ## Binder version
 The interface can be used online without a Python distribution installed through Binder:
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lukaribar/Bursting-Circuit/master?filepath=gui_notebook.ipynb)
-
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lukaribar/Circuit-Neuromodulation/master?filepath=gui_old_notebook.ipynb)
 
 **NOTE**: This uses an old version of the interface, without live plotting and additional utilities. For most up to date version, use **`gui.py`**.
