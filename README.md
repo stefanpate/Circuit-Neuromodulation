@@ -1,5 +1,9 @@
 # Circuit-Neuromodulation
-Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre) https://arxiv.org/abs/1805.05696
+Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre, 2018) https://arxiv.org/abs/1805.05696
+
+## Overview
+The repository provides a graphical interface to control the behavior of the neural circuit by shaping its I-V curves, as detailed in the paper. It is organized as follows:
+
 
 ## Reference
 If you use the model, please cite the paper:
