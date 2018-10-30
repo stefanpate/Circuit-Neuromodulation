@@ -4,7 +4,7 @@ Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre, 2018): https://ar
 ## Overview
 The repository provides a graphical interface to control the behavior of the neural circuit by shaping its I-V curves, as detailed in the paper. It is organized as follows:
 - `gui.py`: Main file that generates the interface for changing the parameters of the circuit and a live plot of the its behavior.
-- `model.py`: Definition of the neuron model, as described in the paper.
+- `model.py`: Definition of the neuron model.
 - `requirements.txt`: Python dependencies.
 
 ## Binder version
