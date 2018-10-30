@@ -3,6 +3,8 @@ Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre) https://arxiv.org
 
 ## Reference
 If you use the model, please cite:
+
+'''
 @ARTICLE{ribar2018neuromodulation,
    author = {{Ribar}, L. and {Sepulchre}, R.},
     title = "{Neuromodulation of Neuromorphic Circuits}",
@@ -16,7 +18,7 @@ archivePrefix = "arXiv",
    adsurl = {http://adsabs.harvard.edu/abs/2018arXiv180505696R},
   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
-
+'''
 
 Graphical interface:
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lukaribar/Bursting-Circuit/master?filepath=gui_notebook.ipynb)
