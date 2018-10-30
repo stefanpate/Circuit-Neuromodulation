@@ -2,7 +2,7 @@
 Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre) https://arxiv.org/abs/1805.05696
 
 ## Reference
-If you use the model, please cite:
+If you use the model, please cite the paper:
 
 ```
 @ARTICLE{ribar2018neuromodulation,
@@ -22,3 +22,6 @@ archivePrefix = "arXiv",
 
 Graphical interface:
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lukaribar/Bursting-Circuit/master?filepath=gui_notebook.ipynb)
+
+## License
+MIT
