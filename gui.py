@@ -3,13 +3,18 @@
 Created on Tue Jun  5 19:31:33 2018
 
 Graphical interface for generating and modulating single neuron behavior.
+* with live simulation plotting *
 
 @author: Luka
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button, Slider
+from matplotlib.widgets import Slider, Button
 import numpy as np
+
+from time import time
+from collections import deque
+from scipy.integrate import BDF
 
 from model import LocalizedConductance, Circuit
 
@@ -25,6 +30,14 @@ voff_us = -1.5
 
 # Initial constant input current
 i_app_const = -2
+i_app = lambda t: i_app_const
+
+# Initial values pulse
+pulse_on = False
+tend = 0
+
+# Initialize pause value
+pause_value = False
 
 # Define current elements:
 # i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
@@ -35,11 +48,6 @@ i4 = LocalizedConductance(a_us, voff_us, 'ultraslow')
 
 # Interconnect the elements
 circ = Circuit(i1, i2, i3, i4)
-
-# Simulation parameters
-trange = (0, 8000)
-v0 = (0, 0, 0.2, 0.3)
-
 
 def update_fast_vector():
     # Create a list of sections for the fast I-V curve
@@ -155,15 +163,10 @@ def plot_ultra_slow():
     
     axus.plot(V, np.ones(len(V)) * i_app_const,'C2')
 
-def sim(event):
-    i_app = lambda t: i_app_const # Define i_app as function of t
-    sol = circ.simulate(trange, v0, i_app)
-    axsim.cla()
-    axsim.plot(sol.t, sol.y[0])
-
 def update_iapp(val):
-    global i_app_const
+    global i_app_const, i_app
     i_app_const = val
+    i_app = lambda t: i_app_const
     plot_ultra_slow()
 
 def update_fast1(val):
@@ -251,6 +254,27 @@ def update_ultraslow2(val):
     I_ultraslow = I_slow + i4.out(V)
 
     plot_ultra_slow()
+    
+# Input pulse event
+def pulse(event):
+    global pulse_on, tend, i_app
+    
+    # Pulse parameters
+    delta_t = 10
+    delta_i = 1
+    
+    tend = solver.t + delta_t
+    pulse_on = True
+    
+    i_app = lambda t: (i_app_const + delta_i)
+    
+def pause(event):
+    global pause_value
+    pause_value = not(pause_value)
+    if pause_value:
+        button_pause.label.set_text('Resume')
+    else:
+        button_pause.label.set_text('Pause')
 
 # Plot I-V curves
 V = np.arange(-3,3.1,0.1)
@@ -286,8 +310,10 @@ plot_ultra_slow()
 # Time - Voltage plot
 axsim = fig.add_subplot(2, 3, 4)
 axsim.set_position([0.1, 0.45, 0.8, 0.2])
+axsim.set_ylim((-5, 5))
 axsim.set_xlabel('Time')
 axsim.set_ylabel('V')
+#axsim.grid()
 
 # Sliders for fast negative conductance
 axf1 = plt.axes([0.1, 0.3, 0.3, 0.03])
@@ -326,13 +352,59 @@ axiapp = plt.axes([0.1, 0.02, 0.5, 0.03])
 slider_iapp = Slider(axiapp, '$I_{app}$',-3, 3, valinit = i_app_const)
 slider_iapp.on_changed(update_iapp)
 
+# Button for I_app = pulse(t)
+axpulse_button = plt.axes([.675, 0.02, 0.1, 0.03])
+pulse_button = Button(axpulse_button, 'Pulse')
+pulse_button.on_clicked(pulse)
+
+# Button for pausing the simulation
+axbutton = plt.axes([0.8, 0.02, 0.1, 0.03])
+button_pause = Button(axbutton, 'Pause')
+button_pause.on_clicked(pause)
+
 # Labels for conductance sliders
 plt.figtext(0.25, 0.34, 'Fast -ve', horizontalalignment = 'center')
 plt.figtext(0.25, 0.19, 'Slow +ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
 
-# Button for simulation
-axsim_button = plt.axes([.8, .02, 0.1, .06])
-sim_button = Button(axsim_button, 'Simulate')
-sim_button.on_clicked(sim)
+# Live simulation
+v0 = (-2.5, -2.4, -1.5)
+
+sstep = 100
+tint = 6000
+
+tdata, ydata = deque(), deque()
+simuln, = axsim.plot(tdata, ydata)
+
+def fun(t, y):
+    return circ.sys(*y, i_app(t))
+
+solver = BDF(fun, 0, v0, np.inf, max_step=sstep)
+
+while plt.fignum_exists(fig.number):
+    while pause_value:
+        plt.pause(0.01)
+    
+    st = time()
+
+    last_t = solver.t
+    while solver.t - last_t < sstep:
+        # Check for pulse
+        if pulse_on and (solver.t > tend):
+            i_app = lambda t: i_app_const
+            pulse_on = False
+        msg = solver.step()
+        if msg:
+            raise ValueError('solver terminated with message: %s ' % msg)
+        tdata.append(solver.t)
+        ydata.append(solver.y[0])
+
+    while tdata[-1] - tdata[0] > 2 * tint:
+        tdata.popleft()
+        ydata.popleft()
+
+    simuln.set_data(tdata, ydata)
+    axsim.set_xlim(tdata[-1] - tint, tdata[-1] + tint / 20)
+    fig.canvas.draw()
+    fig.canvas.flush_events()
