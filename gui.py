@@ -18,15 +18,18 @@ from scipy.integrate import BDF
 
 from model import LocalizedConductance, Circuit
 
+
+plt.ion()
+
 # Initial conductance parameters
 a_f = -2
 voff_f = 0
 a_s1 = 2
 voff_s1 = 0
 a_s2 = -1.5
-voff_s2 = -1.5
+voff_s2 = -0.9
 a_us = 1.5
-voff_us = -1.5
+voff_us = -0.9
 
 # Initial constant input current
 i_app_const = -2
@@ -378,7 +381,7 @@ tdata, ydata = deque(), deque()
 simuln, = axsim.plot(tdata, ydata)
 
 def fun(t, y):
-    return circ.sys(*y, i_app(t))
+    return circ.sys(i_app(t),*y)
 
 solver = BDF(fun, 0, v0, np.inf, max_step=sstep)
 

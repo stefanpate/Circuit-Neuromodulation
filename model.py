@@ -88,10 +88,9 @@ class Circuit:
                 s += i.out(vus)                
         return s
     
-    def sys(self, *y):
+    def sys(self, i_app, *y):
         
         v = y[0]
-        i_app = y[-1]
         
         if self.tf != 0:
             vf = y[1]
@@ -118,7 +117,7 @@ class Circuit:
             v0 = (v0[0], v0[2], v0[3])
         
         def odesys(t, y):
-            return self.sys(*y, i_app(t))
+            return self.sys(i_app(t), *y)
         def odejac(t, y):
             return jacobian(lambda y: odesys(t, y))(y)
         
