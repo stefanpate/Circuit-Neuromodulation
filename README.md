@@ -1,5 +1,6 @@
 # Circuit-Neuromodulation
-Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre, 2018): https://arxiv.org/abs/1805.05696
+Neuromodulation of Neuromorphic Circuits (Ribar and Sepulchre, 2019): https://ieeexplore.ieee.org/document/8698454
+(arXiv version: https://arxiv.org/abs/1805.05696)
 
 ## Overview
 The repository provides a graphical interface to control the behavior of the neural circuit by shaping its I-V curves, as detailed in the paper. It is organized as follows:
@@ -18,19 +19,18 @@ The interface can be used online without a Python distribution installed through
 If you use the model, please cite the paper:
 
 ```
-@ARTICLE{ribar2018neuromodulation,
-   author = {{Ribar}, L. and {Sepulchre}, R.},
-   title = "{Neuromodulation of Neuromorphic Circuits}",
-   journal = {ArXiv e-prints},
-   archivePrefix = "arXiv",
-   eprint = {1805.05696},
-   primaryClass = "q-bio.NC",
-   keywords = {Quantitative Biology - Neurons and Cognition},
-   year = 2018,
-   month = may,
-   adsurl = {http://adsabs.harvard.edu/abs/2018arXiv180505696R},
-   adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}
+@ARTICLE{ribar2019neuromodulation,
+author={L. {Ribar} and R. {Sepulchre}},
+journal={IEEE Transactions on Circuits and Systems I: Regular Papers},
+title={Neuromodulation of Neuromorphic Circuits},
+year={2019},
+volume={66},
+number={8},
+pages={3028-3040},
+doi={10.1109/TCSI.2019.2907113},
+ISSN={1549-8328},
+month={Aug},}
 ```
+
 ## License
 MIT
