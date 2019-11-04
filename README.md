@@ -8,13 +8,6 @@ The repository provides a graphical interface to control the behavior of the neu
 - `model.py`: Definition of the neuron model.
 - `requirements.txt`: Python dependencies.
 
-## Binder version
-The interface can be used online without a Python distribution installed through Binder:
-
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lukaribar/circuit-neuromodulation/master?filepath=gui_old_notebook.ipynb)
-
-**NOTE**: This uses an old version of the interface, without live plotting and additional utilities. For most up to date version, use **`gui.py`**.
-
 ## Reference
 If you use the model, please cite the paper:
 
