@@ -9,7 +9,7 @@ The repository provides a graphical interface to control the behavior of the neu
 - `requirements.txt`: Python dependencies.
 
 The repository also provides definitions for simulating network behavior:
-- `network_model.py`: Definition synaptic and resistive interconnections, uses `neuron_model.py` for the model of the nodes.
+- `network_model.py`: Definitions of synaptic and resistive interconnections, uses `neuron_model.py` for the nodal model.
 - `hco_gui.py`: Graphical interface for simulating a 2-neuron network with excitatory or inhibitory interconnections.
 
 Models `neuron_model.py` and `network_model.py` provide definitions for conductance-based elements as well. An example of a conductance-based model is shown in:
