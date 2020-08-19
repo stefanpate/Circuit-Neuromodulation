@@ -2,9 +2,9 @@
 """
 Created on Jul 23 2020
 
-Graphical interface for controlling single neuron behavior.
-Neuron consists of 4 current source elements representing fast -ve, slow +ve,
-slow -ve, and ultra-slow +ve conductance.
+Graphical interface for generating and modulating single neuron behavior.
+Neuron consists of 4 conductance elements with single activation variables
+representing fast -ve, slow +ve, slow -ve, and ultra-slow +ve conductance.
 
 @author: Luka
 """
@@ -16,22 +16,33 @@ import numpy as np
 from time import time
 from collections import deque
 
-from neuron_model import CurrentElement, Neuron
+from neuron_model import Gate, ConductanceElement, Neuron
 
 plt.ion()
 
 # Initial conductance parameters
-a_f = -2
-voff_f = 0
-a_s1 = 2
-voff_s1 = 0
-a_s2 = -1.5
-voff_s2 = -0.9
-a_us = 1.5
-voff_us = -0.9
+g1 = 0
+E_rev1 = 30 # 'sodium'
+voff1 = -20
+k1 = 0.1
+
+g2 = 0
+E_rev2 = -75 # 'potassium'
+voff2 = -20
+k2 = 0.1
+
+g3 = 0
+E_rev3 = 140 # 'calcium'
+voff3 = -50
+k3 = 0.15
+
+g4 = 0
+E_rev4 = -75 # 'potassium'
+voff4 = -50
+k4 = 0.15
 
 # Initial constant input current
-i_app_const = -2
+i_app_const = -50
 i_app = lambda t: i_app_const
 
 # Initial values pulse
@@ -46,12 +57,17 @@ tf = 0
 ts = 50
 tus = 50*50
 
-# Define current elements:
-# i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
-i1 = CurrentElement(a_f, voff_f, tf)
-i2 = CurrentElement(a_s1, voff_s1, ts)
-i3 = CurrentElement(a_s2, voff_s2, ts)
-i4 = CurrentElement(a_us, voff_us, tus)
+# Define activation gates
+x1 = Gate(k1, voff1, tf)
+x2 = Gate(k2, voff2, ts)
+x3 = Gate(k3, voff3, ts)
+x4 = Gate(k4, voff4, tus)
+
+# Define conductance elements
+i1 = ConductanceElement(g1, E_rev1, x1)
+i2 = ConductanceElement(g2, E_rev2, x2)
+i3 = ConductanceElement(g3, E_rev3, x3)
+i4 = ConductanceElement(g4, E_rev4, x4)
 
 # Interconnect the elements
 neuron = Neuron(i1, i2, i3, i4)
@@ -178,7 +194,7 @@ def update_iapp(val):
 
 def update_fast1(val):
     global i1, I_fast, I_slow, I_ultraslow
-    i1.a = -val
+    i1.g_max = val
     I_fast = I_passive + i1.ss_out(V)
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
@@ -192,7 +208,7 @@ def update_fast1(val):
     
 def update_fast2(val):
     global i1, I_fast, I_slow, I_ultraslow
-    i1.voff = val
+    i1.gates[0].voff = val
     I_fast = I_passive + i1.ss_out(V)
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
@@ -206,7 +222,7 @@ def update_fast2(val):
 
 def update_slow11(val):
     global i2, I_fast, I_slow, I_ultraslow
-    i2.a = val
+    i2.g_max = val
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
     
@@ -217,7 +233,7 @@ def update_slow11(val):
     
 def update_slow12(val):
     global i2, I_fast, I_slow, I_ultraslow
-    i2.voff = val
+    i2.gates[0].voff = val
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
     
@@ -228,7 +244,7 @@ def update_slow12(val):
     
 def update_slow21(val):
     global i3, I_fast, I_slow, I_ultraslow
-    i3.a = -val
+    i3.g_max = val
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
     
@@ -239,7 +255,7 @@ def update_slow21(val):
 
 def update_slow22(val):
     global i3, I_fast, I_slow, I_ultraslow
-    i3.voff = val
+    i3.gates[0].voff = val
     I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
     I_ultraslow = I_slow + i4.ss_out(V)
     
@@ -250,14 +266,14 @@ def update_slow22(val):
 
 def update_ultraslow1(val):
     global i4, I_fast, I_slow, I_ultraslow
-    i4.a = val
+    i4.g_max = val
     I_ultraslow = I_slow + i4.ss_out(V)
         
     plot_ultra_slow()
 
 def update_ultraslow2(val):
     global i4, I_fast, I_slow, I_ultraslow
-    i4.voff = val
+    i4.gates[0].voff = val
     I_ultraslow = I_slow + i4.ss_out(V)
 
     plot_ultra_slow()
@@ -284,7 +300,7 @@ def pause(event):
         button_pause.label.set_text('Pause')
 
 # Plot I-V curves
-V = np.arange(-3,3.1,0.1)
+V = np.arange(-100,20,1.0)
 I_passive = V
 I_fast = I_passive + i1.ss_out(V)
 I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
@@ -317,46 +333,46 @@ plot_ultra_slow()
 # Time - Voltage plot
 axsim = fig.add_subplot(2, 3, 4)
 axsim.set_position([0.1, 0.45, 0.8, 0.2])
-axsim.set_ylim((-5, 5))
+axsim.set_ylim((-120, 20))
 axsim.set_xlabel('Time')
 axsim.set_ylabel('V')
 #axsim.grid()
 
 # Sliders for fast negative conductance
 axf1 = plt.axes([0.1, 0.3, 0.3, 0.03])
-slider_fast1 = Slider(axf1, 'Gain', 0, 4, valinit = -a_f)
+slider_fast1 = Slider(axf1, '$g_{max}$', 0, 10, valinit = g1)
 slider_fast1.on_changed(update_fast1)
 axf2 = plt.axes([0.1, 0.25, 0.3, 0.03])
-slider_fast2 = Slider(axf2, '$V_{off}$', -2, 2, valinit = voff_f)
+slider_fast2 = Slider(axf2, '$V_{off}$', -75, 0, valinit = voff1)
 slider_fast2.on_changed(update_fast2)
 
 # Sliders for slow positive conductance
 axs11 = plt.axes([0.1, 0.15, 0.3, 0.03])
-slider_slow11 = Slider(axs11, 'Gain', 0, 4, valinit = a_s1)
+slider_slow11 = Slider(axs11, '$g_{max}$', 0, 10, valinit = g2)
 slider_slow11.on_changed(update_slow11)
 axs12 = plt.axes([0.1, 0.1, 0.3, 0.03])
-slider_slow12 = Slider(axs12, '$V_{off}$', -2, 2, valinit = voff_s1)
+slider_slow12 = Slider(axs12, '$V_{off}$', -75, 0, valinit = voff2)
 slider_slow12.on_changed(update_slow12)
 
 # Sliders for slow negative conductance
 axs21 = plt.axes([0.6, 0.3, 0.3, 0.03])
-slider_slow21 = Slider(axs21, 'Gain', 0, 4, valinit = -a_s2)
+slider_slow21 = Slider(axs21, '$g_{max}$', 0, 10, valinit = g3)
 slider_slow21.on_changed(update_slow21)
 axs22 = plt.axes([0.6, 0.25, 0.3, 0.03])
-slider_slow22 = Slider(axs22, '$V_{off}$', -2, 2, valinit = voff_s2)
+slider_slow22 = Slider(axs22, '$V_{off}$', -75, 0, valinit = voff3)
 slider_slow22.on_changed(update_slow22)
 
 # Sliders for ultraslow positive conductance
 axus1 = plt.axes([0.6, 0.15, 0.3, 0.03])
-slider_ultraslow1 = Slider(axus1, 'Gain', 0, 4, valinit = a_us)
+slider_ultraslow1 = Slider(axus1, '$g_{max}$', 0, 10, valinit = g4)
 slider_ultraslow1.on_changed(update_ultraslow1)
 axus2 = plt.axes([0.6, 0.1, 0.3, 0.03])
-slider_ultraslow2 = Slider(axus2, '$V_{off}$', -2, 2, valinit = voff_us)
+slider_ultraslow2 = Slider(axus2, '$V_{off}$', -75, 0, valinit = voff4)
 slider_ultraslow2.on_changed(update_ultraslow2)
 
 # Slider for Iapp
 axiapp = plt.axes([0.1, 0.02, 0.5, 0.03])
-slider_iapp = Slider(axiapp, '$I_{app}$',-3, 3, valinit = i_app_const)
+slider_iapp = Slider(axiapp, '$I_{app}$',-100, 0, valinit = i_app_const)
 slider_iapp.on_changed(update_iapp)
 
 # Button for I_app = pulse(t)
@@ -398,7 +414,7 @@ def odesys(t, y):
 y = v0
 t = t0
 def euler_step(odesys, t0, y0):
-    dt = 1 # step size
+    dt = 0.1 # step size
     y = y0 + odesys(t0,y0)*dt
     t = t0 + dt
     return t, y
