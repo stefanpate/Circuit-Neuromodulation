@@ -16,7 +16,7 @@ import numpy as np
 from time import time
 from collections import deque
 
-from neuron_model import Gate, ConductanceElement, Neuron
+from neuron_model import Resistor, Gate, ConductanceElement, Neuron
 
 plt.ion()
 
@@ -64,13 +64,14 @@ x3 = Gate(k3, voff3, ts)
 x4 = Gate(k4, voff4, tus)
 
 # Define conductance elements
+R = Resistor(1)
 i1 = ConductanceElement(g1, E_rev1, x1)
 i2 = ConductanceElement(g2, E_rev2, x2)
 i3 = ConductanceElement(g3, E_rev3, x3)
 i4 = ConductanceElement(g4, E_rev4, x4)
 
 # Interconnect the elements
-neuron = Neuron(i1, i2, i3, i4)
+neuron = Neuron(R, i1, i2, i3, i4)
 
 def update_fast_vector():
     # Create a list of sections for the fast I-V curve

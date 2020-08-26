@@ -14,7 +14,7 @@ import numpy as np
 from time import time
 from collections import deque
 
-from neuron_model import CurrentElement, Neuron
+from neuron_model import Resistor, CurrentElement, Neuron
 from network_model import CurrentSynapse, Network
 
 # Define timescales
@@ -23,6 +23,7 @@ ts = 50
 tus = 50*50
 
 # List of initial conductance parameters
+Rvals = [1, 1]
 a_f = [-2, -2]
 voff_f = [0, 0]
 a_s1 = [2, 2]
@@ -44,8 +45,9 @@ tend = 0
 # Initialize pause value
 pause_value = False
 
-# Define list of current elements:
+# Define list of circuit elements:
 # i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
+R = []
 i1 = []
 i2 = []
 i3 = []
@@ -55,11 +57,12 @@ i4 = []
 neurons = []
 
 for j in range(2):
+    R.append(Resistor(Rvals[j]))
     i1.append(CurrentElement(a_f[j], voff_f[j], tf))
     i2.append(CurrentElement(a_s1[j], voff_s1[j], ts))
     i3.append(CurrentElement(a_s2[j], voff_s2[j], ts))
     i4.append(CurrentElement(a_us[j], voff_us[j], tus))
-    neurons.append(Neuron(i1[j], i2[j], i3[j], i4[j]))
+    neurons.append(Neuron(R[j], i1[j], i2[j], i3[j], i4[j]))
 
 # Initial synapse parameters
 syn1_sign = -1

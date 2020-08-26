@@ -126,18 +126,26 @@ class ConductanceElement:
         for x in self.gates:
             iout *= x.ss_out(V)
         return iout        
+
+class Resistor(ConductanceElement):
+    """
+    Standard resistor element derived from the general ConductanceElement
+    Iout = V / R
+    """
+    def __init__(self, R):
+        super().__init__(1/R, 0)
         
 class Neuron:
     """
     Parallel interconnection of current or conductance elements
-    C dV/dT = -V/R - sum(I_x) + Iapp
+    C dV/dT = - sum(I_x) + Iapp
     where I_x is the output current of each current/conductance element
     
-    args: list of feedback elements (ion currents)
-    kwargs: circuit parameters (membrane R,C values)
+    args: list of circuit elements
+    kwargs: circuit parameters (membrane capacitance)
     """
 
-    _stdPar = {'R': 1,'C': 1} # Membrane RC values
+    _stdPar = {'C': 1} # Membrane capacitor value
     timescales = [0] # Timescales of membrane voltage + first order filters
     y0 = [vmem0] # Initial conditions of membrane voltage + first order filters
     
@@ -149,7 +157,7 @@ class Neuron:
         self.__dict__.update(self.stdPar) # Default circuit parameters
         self.__dict__.update(kwargs) # Modify circuit parameters
         
-        self.elements = args # List containing all feedback elements
+        self.elements = args # List containing all circuit elements
         
         # Group instances of same timescale + set initial conditions
         for el in self.elements:
@@ -162,7 +170,7 @@ class Neuron:
         """
         Returns total internal current
         """
-        s = y[0] / self.R
+        s = 0
         for el in self.elements:
             s += el.out(y)
         return s

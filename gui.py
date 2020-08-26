@@ -16,7 +16,7 @@ import numpy as np
 from time import time
 from collections import deque
 
-from neuron_model import CurrentElement, Neuron
+from neuron_model import Resistor, CurrentElement, Neuron
 
 plt.ion()
 
@@ -46,15 +46,16 @@ tf = 0
 ts = 50
 tus = 50*50
 
-# Define current elements:
+# Define circuit elements:
 # i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
+R = Resistor(1)
 i1 = CurrentElement(a_f, voff_f, tf)
 i2 = CurrentElement(a_s1, voff_s1, ts)
 i3 = CurrentElement(a_s2, voff_s2, ts)
 i4 = CurrentElement(a_us, voff_us, tus)
 
 # Interconnect the elements
-neuron = Neuron(i1, i2, i3, i4)
+neuron = Neuron(R, i1, i2, i3, i4)
 
 def update_fast_vector():
     # Create a list of sections for the fast I-V curve

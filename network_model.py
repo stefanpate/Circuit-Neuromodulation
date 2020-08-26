@@ -57,7 +57,7 @@ class ConductanceSynapse(Interconnection):
         x = sigmoid(Vpre - self.voff, self.slope)
         return x * (Vpost - self.E_rev)
 
-class LinearResistor(Interconnection):
+class ResistorInterconnection(Interconnection):
     """
     Ires = (Vpre - Vpost)
     """
