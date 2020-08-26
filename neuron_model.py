@@ -10,9 +10,8 @@ an arbitrary number of either 'Current' or 'Conductance' elements
 from numpy import tanh, exp
 import numpy as np
 
-# Default initial conditions
-vmem0 = -1.9 # Membrane voltage
-vx0 = -1.8 # First-order filters
+# Default initial conditions for first-order filters
+vx0 = -1.8
 
 def sigmoid(x, k = 1):
     return 1 / (1 + exp(-k * (x)))
@@ -145,9 +144,9 @@ class Neuron:
     kwargs: circuit parameters (membrane capacitance)
     """
 
-    _stdPar = {'C': 1} # Membrane capacitor value
+    _stdPar = {'C': 1, 'v0': -1.9} # Membrane capacitor value + init condition
     timescales = [0] # Timescales of membrane voltage + first order filters
-    y0 = [vmem0] # Initial conditions of membrane voltage + first order filters
+    y0 = [] # Initial conditions of membrane voltage + first order filters
     
     @property
     def stdPar(self):
@@ -156,6 +155,8 @@ class Neuron:
     def __init__(self, *args, **kwargs):
         self.__dict__.update(self.stdPar) # Default circuit parameters
         self.__dict__.update(kwargs) # Modify circuit parameters
+        
+        self.y0.append(self.v0)
         
         self.elements = args # List containing all circuit elements
         
