@@ -19,11 +19,15 @@ def sigmoid(x, k = 1):
 class SingleTimescaleElement():
     """
     Parent class for elements depending on a single filtered voltage Vx
+    timescale: required for every element
+    v0: initial condition (optional)
+    v_index: assigned when interconnected in a circuit
     """
-    
-    timescale = None
-    v0 = None
-    v_index = None # index of corresponding Vx, assigned at circuit init
+        
+    def __init__(self, timescale, v0 = None):
+        self.timescale = timescale
+        self.v0 = v0
+        self.v_index = None
     
     def add_timescale(self, timescales, y0):
         """
@@ -39,7 +43,19 @@ class SingleTimescaleElement():
             if (self.v0):
                 y0.append(self.v0)
             else:
-                y0.append(vx0)        
+                y0.append(vx0)
+                
+    def out(self, V):
+        """
+        Steady-state output depending on the input V
+        """
+        return V
+    
+    def _out(self, y):
+        """
+        Output depending on the appropriate Vx
+        """
+        return self.out(y[self.v_index])
 
 class CurrentElement(SingleTimescaleElement):
     """
@@ -57,14 +73,8 @@ class CurrentElement(SingleTimescaleElement):
         self.voff = voff
         self.timescale = timescale
         self.v0 = v0
-                
-    def out(self, y):        
-        return (self.a * tanh(y[self.v_index] - self.voff))
-    
-    def ss_out(self, V):
-        """
-        Generate the steady-state input-output characteristic
-        """
+                    
+    def out(self, V):
         return (self.a * tanh(V - self.voff))
     
 class Gate(SingleTimescaleElement):
@@ -83,14 +93,8 @@ class Gate(SingleTimescaleElement):
         self.voff = voff
         self.timescale = timescale
         self.v0 = v0
-        
-    def out(self, y):
-        return sigmoid(y[self.v_index] - self.voff, self.k)
-    
-    def ss_out(self, V):
-        """
-        Generate the steady-state input-output characteristic
-        """
+            
+    def out(self, V):
         return sigmoid(V - self.voff, self.k)
 
 class ConductanceElement:
@@ -111,21 +115,18 @@ class ConductanceElement:
         for x in self.gates:
             x.add_timescale(timescales, y0)
     
-    def out(self, y):
-        iout = self.g_max * (y[0] - self.E_rev)
-        for x in self.gates:
-            iout *= x.out(y)
-        return iout
-    
-    def ss_out(self, V):
-        """
-        Generate the steady-state input-output characteristic
-        """
+    def out(self, V):
         iout = self.g_max * (V - self.E_rev)
         for x in self.gates:
-            iout *= x.ss_out(V)
-        return iout        
-
+            iout *= x.out(V)
+        return iout  
+    
+    def _out(self, y):
+        iout = self.g_max * (y[0] - self.E_rev)
+        for x in self.gates:
+            iout *= x._out(y)
+        return iout
+    
 class Resistor(ConductanceElement):
     """
     Standard resistor element derived from the general ConductanceElement
@@ -141,12 +142,10 @@ class Neuron:
     where I_x is the output current of each current/conductance element
     
     args: list of circuit elements
-    kwargs: circuit parameters (membrane capacitance)
+    kwargs: circuit parameters (membrane capapcitance, initial condition)
     """
 
     _stdPar = {'C': 1, 'v0': -1.9} # Membrane capacitor value + init condition
-    timescales = [0] # Timescales of membrane voltage + first order filters
-    y0 = [] # Initial conditions of membrane voltage + first order filters
     
     @property
     def stdPar(self):
@@ -156,7 +155,8 @@ class Neuron:
         self.__dict__.update(self.stdPar) # Default circuit parameters
         self.__dict__.update(kwargs) # Modify circuit parameters
         
-        self.y0.append(self.v0)
+        self.timescales = [0] # Timescales of membrane voltage + all filters
+        self.y0 = [self.v0] # Initial conditions
         
         self.elements = args # List containing all circuit elements
         
@@ -173,7 +173,7 @@ class Neuron:
         """
         s = 0
         for el in self.elements:
-            s += el.out(y)
+            s += el._out(y)
         return s
     
     def sys(self, i_app, y):

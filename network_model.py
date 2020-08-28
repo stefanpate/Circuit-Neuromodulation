@@ -16,7 +16,8 @@ class Interconnection():
     Arbitrary interconnecting element between two neurons
     """
     
-    timescale = 0 # element is instantaneous by default
+    def __init__(self):
+        self.timescale = 0 # element is instantaneous by default
     
     def check_connectivity_matrix(self, g, n):
         if np.array(g).shape != (n, n):
@@ -74,9 +75,9 @@ class Network:
     """
     Neural network:
         neurons: list containing all neurons
-        *args: list of (synapse_model, g) tuples, so that
-        for each synapse there is a connectivity matrix g describing the
-        connection strengths.
+        args: list of (synapse_model, g) tuples, so that for each synapse
+        there is a connectivity matrix g describing the connection strengths.
+        
         g[i][j] is the weight of the synaptic connection FROM neuron i TO
         neuron j.
     """

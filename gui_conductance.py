@@ -196,9 +196,9 @@ def update_iapp(val):
 def update_fast1(val):
     global i1, I_fast, I_slow, I_ultraslow
     i1.g_max = val
-    I_fast = I_passive + i1.ss_out(V)
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_fast = I_passive + i1.out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
     
     update_fast_vector()
     update_slow_vector()
@@ -210,9 +210,9 @@ def update_fast1(val):
 def update_fast2(val):
     global i1, I_fast, I_slow, I_ultraslow
     i1.gates[0].voff = val
-    I_fast = I_passive + i1.ss_out(V)
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_fast = I_passive + i1.out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
 
     update_fast_vector()
     update_slow_vector()
@@ -224,8 +224,8 @@ def update_fast2(val):
 def update_slow11(val):
     global i2, I_fast, I_slow, I_ultraslow
     i2.g_max = val
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
     
     update_slow_vector()
     
@@ -235,8 +235,8 @@ def update_slow11(val):
 def update_slow12(val):
     global i2, I_fast, I_slow, I_ultraslow
     i2.gates[0].voff = val
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
     
     update_slow_vector()
     
@@ -246,8 +246,8 @@ def update_slow12(val):
 def update_slow21(val):
     global i3, I_fast, I_slow, I_ultraslow
     i3.g_max = val
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
     
     update_slow_vector()
     
@@ -257,8 +257,8 @@ def update_slow21(val):
 def update_slow22(val):
     global i3, I_fast, I_slow, I_ultraslow
     i3.gates[0].voff = val
-    I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_slow = I_fast + i2.out(V) + i3.out(V)
+    I_ultraslow = I_slow + i4.out(V)
     
     update_slow_vector()
     
@@ -268,14 +268,14 @@ def update_slow22(val):
 def update_ultraslow1(val):
     global i4, I_fast, I_slow, I_ultraslow
     i4.g_max = val
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_ultraslow = I_slow + i4.out(V)
         
     plot_ultra_slow()
 
 def update_ultraslow2(val):
     global i4, I_fast, I_slow, I_ultraslow
     i4.gates[0].voff = val
-    I_ultraslow = I_slow + i4.ss_out(V)
+    I_ultraslow = I_slow + i4.out(V)
 
     plot_ultra_slow()
     
@@ -303,9 +303,9 @@ def pause(event):
 # Plot I-V curves
 V = np.arange(-100,20,1.0)
 I_passive = V
-I_fast = I_passive + i1.ss_out(V)
-I_slow = I_fast + i2.ss_out(V) + i3.ss_out(V)
-I_ultraslow = I_slow + i4.ss_out(V)
+I_fast = I_passive + i1.out(V)
+I_slow = I_fast + i2.out(V) + i3.out(V)
+I_ultraslow = I_slow + i4.out(V)
 
 # Find initial sections
 update_fast_vector()

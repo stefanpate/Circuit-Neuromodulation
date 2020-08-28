@@ -62,7 +62,8 @@ for j in range(2):
     i2.append(CurrentElement(a_s1[j], voff_s1[j], ts))
     i3.append(CurrentElement(a_s2[j], voff_s2[j], ts))
     i4.append(CurrentElement(a_us[j], voff_us[j], tus))
-    neurons.append(Neuron(R[j], i1[j], i2[j], i3[j], i4[j]))
+    neuron = Neuron(R[j], i1[j], i2[j], i3[j], i4[j])
+    neurons.append(neuron)
 
 # Initial synapse parameters
 syn1_sign = -1
@@ -198,9 +199,9 @@ def update_iapp(val, j):
 def update_fast1(val, j):
     global i1, I_fast, I_slow, I_ultraslow
     i1[j].a = -val
-    I_fast[j] = I_passive[j] + i1[j].ss_out(V)
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_fast[j] = I_passive[j] + i1[j].out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
     
     update_fast_vector(j)
     update_slow_vector(j)
@@ -212,9 +213,9 @@ def update_fast1(val, j):
 def update_fast2(val, j):
     global i1, I_fast, I_slow, I_ultraslow
     i1[j].voff = val
-    I_fast[j] = I_passive[j] + i1[j].ss_out(V)
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_fast[j] = I_passive[j] + i1[j].out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
 
     update_fast_vector(j)
     update_slow_vector(j)
@@ -226,8 +227,8 @@ def update_fast2(val, j):
 def update_slow11(val, j):
     global i2, I_fast, I_slow, I_ultraslow
     i2[j].a = val
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
     
     update_slow_vector(j)
     
@@ -237,8 +238,8 @@ def update_slow11(val, j):
 def update_slow12(val, j):
     global i2, I_fast, I_slow, I_ultraslow
     i2[j].voff = val
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
     
     update_slow_vector(j)
     
@@ -248,8 +249,8 @@ def update_slow12(val, j):
 def update_slow21(val, j):
     global i3, I_fast, I_slow, I_ultraslow
     i3[j].a = -val
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
     
     update_slow_vector(j)
     
@@ -259,8 +260,8 @@ def update_slow21(val, j):
 def update_slow22(val, j):
     global i3, I_fast, I_slow, I_ultraslow
     i3[j].voff = val
-    I_slow[j] = I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V)
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_slow[j] = I_fast[j] + i2[j].out(V) + i3[j].out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
     
     update_slow_vector(j)
     
@@ -270,14 +271,14 @@ def update_slow22(val, j):
 def update_ultraslow1(val, j):
     global i4, I_fast, I_slow, I_ultraslow
     i4[j].a = val
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
         
     plot_ultra_slow(j)
 
 def update_ultraslow2(val, j):
     global i4, I_fast, I_slow, I_ultraslow
     i4[j].voff = val
-    I_ultraslow[j] = I_slow[j] + i4[j].ss_out(V)
+    I_ultraslow[j] = I_slow[j] + i4[j].out(V)
 
     plot_ultra_slow(j)
     
@@ -333,11 +334,11 @@ def pause(event):
         button_pause.label.set_text('Pause')
         
 def save(event):
-    global ss_out_no
-    f = open("data" + str(ss_out_no) + ".txt", "w")
+    global out_no
+    f = open("data" + str(out_no) + ".txt", "w")
     np.savetxt(f, np.array([tdata, ydata, ydata1]).T)
-    plt.savefig("fig" + str(ss_out_no) + ".pdf")
-    ss_out_no = ss_out_no + 1
+    plt.savefig("fig" + str(out_no) + ".pdf")
+    out_no = out_no + 1
     f.close()
     
 # Initialize I-V data
@@ -351,9 +352,9 @@ V = np.arange(-3,3.1,0.1)
 
 for j in range(2):
     I_passive.append(V)
-    I_fast.append(I_passive[j] + i1[j].ss_out(V))
-    I_slow.append(I_fast[j] + i2[j].ss_out(V) + i3[j].ss_out(V))
-    I_ultraslow.append(I_slow[j] + i4[j].ss_out(V))
+    I_fast.append(I_passive[j] + i1[j].out(V))
+    I_slow.append(I_fast[j] + i2[j].out(V) + i3[j].out(V))
+    I_ultraslow.append(I_slow[j] + i4[j].out(V))
 
 # Initialize section vectors
 fast_vector = [[], []]
@@ -497,7 +498,7 @@ pulse_button = Button(axpulse_button, 'Pulse')
 pulse_button.on_clicked(pulse)
 
 # Button for saving the data
-ss_out_no = 0 # number to attach to the ss_output files
+out_no = 0 # number to attach to the output files
 axsave_button = plt.axes([.46, .5, 0.08, .06])
 save_button = Button(axsave_button, 'Save')
 save_button.on_clicked(save)
