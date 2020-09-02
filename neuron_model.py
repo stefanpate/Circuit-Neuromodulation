@@ -54,7 +54,7 @@ class SingleTimescaleElement():
         """
         return V
     
-    def _out(self, y):
+    def outx(self, y):
         """
         Output depending on the appropriate Vx
         """
@@ -116,10 +116,10 @@ class ConductanceElement:
             iout *= x.out(V)
         return iout  
     
-    def _out(self, y):
+    def outx(self, y):
         iout = self.g_max * (y[0] - self.E_rev)
         for x in self.gates:
-            iout *= x._out(y)
+            iout *= x.outx(y)
         return iout
     
 class Resistor(ConductanceElement):
@@ -171,7 +171,7 @@ class Neuron:
         """
         s = 0
         for el in self.elements:
-            s += el._out(y)
+            s += el.outx(y)
         return s
     
     def sys(self, i_app, y):
