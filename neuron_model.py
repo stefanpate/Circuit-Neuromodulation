@@ -10,9 +10,6 @@ an arbitrary number of either 'Current' or 'Conductance' elements
 from numpy import tanh, exp
 import numpy as np
 
-# Default initial conditions for first-order filters
-vx0 = -1.8
-
 def sigmoid(x, k = 1):
     return 1 / (1 + exp(-k * (x)))
 
@@ -23,7 +20,9 @@ class SingleTimescaleElement():
     v0: initial condition (optional)
     v_index: assigned when interconnected in a circuit
     """
-        
+    
+    vx0 = None # Default initial conditions for first-order filters
+    
     def __init__(self, timescale, v0 = None):
         self.timescale = timescale
         self.v0 = v0
@@ -47,7 +46,7 @@ class SingleTimescaleElement():
             if (self.v0):
                 y0.append(self.v0)
             else:
-                y0.append(vx0)
+                y0.append(self.vx0)
                 
     def out(self, V):
         """
@@ -141,7 +140,8 @@ class Neuron:
     kwargs: circuit parameters (membrane capapcitance, initial condition)
     """
 
-    _stdPar = {'C': 1, 'v0': -1.9} # Membrane capacitor value + init condition
+    # Membrane capacitor value + init conditions
+    _stdPar = {'C': 1, 'v0': -1.9, 'vx0': -1.8}
     
     @property
     def stdPar(self):
@@ -150,6 +150,8 @@ class Neuron:
     def __init__(self, *args, **kwargs):
         self.__dict__.update(self.stdPar) # Default circuit parameters
         self.__dict__.update(kwargs) # Modify circuit parameters
+        
+        SingleTimescaleElement.vx0 = self.vx0 # Default initial conditions
         
         self.timescales = [0] # Timescales of membrane voltage + all filters
         self.y0 = [self.v0] # Initial conditions
