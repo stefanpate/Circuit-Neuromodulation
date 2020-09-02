@@ -28,6 +28,10 @@ class SingleTimescaleElement():
         self.timescale = timescale
         self.v0 = v0
         self.v_index = None
+        
+        if (timescale == 0) and (v0 is not None):
+            raise ValueError("Initial condition of an instantaneous element "
+                             "cannot be set")
     
     def add_timescale(self, timescales, y0):
         """
@@ -65,15 +69,11 @@ class CurrentElement(SingleTimescaleElement):
     """                                
     
     def __init__(self, a, voff, timescale, v0 = None):
-        if (timescale == 0) and (v0 is not None):
-            raise ValueError("Initial condition of an instantaneous element "
-                             "cannot be set")
-            
+        super().__init__(timescale, v0)
+                    
         self.a = a
         self.voff = voff
-        self.timescale = timescale
-        self.v0 = v0
-                    
+        
     def out(self, V):
         return (self.a * tanh(V - self.voff))
     
@@ -85,15 +85,11 @@ class Gate(SingleTimescaleElement):
     """
     
     def __init__(self, k, voff, timescale, v0 = None):
-        if (timescale == 0) and (v0 is not None):
-            raise ValueError("Initial condition of an instantaneous element "
-                             "cannot be set")
+        super().__init__(timescale, v0)
             
         self.k = k
         self.voff = voff
-        self.timescale = timescale
-        self.v0 = v0
-            
+           
     def out(self, V):
         return sigmoid(V - self.voff, self.k)
 

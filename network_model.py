@@ -16,8 +16,8 @@ class Interconnection():
     Arbitrary interconnecting element between two neurons
     """
     
-    def __init__(self):
-        self.timescale = 0 # element is instantaneous by default
+    def __init__(self, timescale):
+        self.timescale = timescale # element is instantaneous by default
     
     def check_connectivity_matrix(self, g, n):
         if np.array(g).shape != (n, n):
@@ -32,10 +32,11 @@ class CurrentSynapse(Interconnection):
     """
     
     def __init__(self, sign, voff, timescale, k = 2):
+        super().__init__(timescale)
+        
         self.voff = voff
         self.sign = sign
         self.k = k
-        self.timescale = timescale
         
     def out(self, Vpre, Vpost = None):
         return self.sign * sigmoid(Vpre - self.voff, self.k)
@@ -49,10 +50,11 @@ class ConductanceSynapse(Interconnection):
     """
     
     def __init__(self, slope, voff, E_rev, timescale):
+        super().__init__(timescale)
+        
         self.slope = slope
         self.voff = voff
         self.E_rev = E_rev
-        self.timescale = timescale
     
     def out(self, Vpre, Vpost):
         x = sigmoid(Vpre - self.voff, self.slope)
@@ -62,6 +64,9 @@ class ResistorInterconnection(Interconnection):
     """
     Ires = (Vpre - Vpost)
     """
+    
+    def __init__(self):
+        super().__init__(0)
     
     def check_connectivity_matrix(self, g, n):
         super().check_connectivity_matrix(g,n)
