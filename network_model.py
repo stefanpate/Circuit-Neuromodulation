@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Jul 23 2020
-
 Network of neurons with synaptic and resistive interconnections.
 Synaptic connections use either the 'Current' or 'Conductance' model
 

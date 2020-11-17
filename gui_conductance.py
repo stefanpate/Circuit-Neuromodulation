@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Jul 23 2020
-
 Graphical interface for generating and modulating single neuron behavior.
 Neuron consists of 4 conductance elements with single activation variables
 representing fast -ve, slow +ve, slow -ve, and ultra-slow +ve conductance.

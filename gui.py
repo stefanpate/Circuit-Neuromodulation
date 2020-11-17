@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Jul 23 2020
-
 Graphical interface for controlling single neuron behavior.
 Neuron consists of 4 current source elements representing fast -ve, slow +ve,
 slow -ve, and ultra-slow +ve conductance.

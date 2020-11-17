@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jun  5 19:31:33 2018
-
-Graphical interface for controlling the 2-neuron half-center oscillator
+Graphical interface for controlling the 2-neuron network
 
 @author: Luka
 """
@@ -317,7 +315,7 @@ def pulse(event):
     global pulse_on, tend, i_app
     
     # Pulse parameters
-    delta_t = 100
+    delta_t = 500
     delta_i = 1
     
     tend = t + delta_t
@@ -478,12 +476,12 @@ plt.figtext(0.71, 0.63, 'Synapse 2->1', horizontalalignment = 'center')
 
 # Sliders for synapses
 axsynsl1 = plt.axes([0.8, 0.545, 0.15, 0.03])
-slider_syn1 = Slider(axsynsl1, 'Gain', 0, 0.75, valinit = g1[0][1])
+slider_syn1 = Slider(axsynsl1, 'Gain', 0, 1.5, valinit = g1[0][1])
 plt.figtext(0.875, 0.585, 'Synapse 1->2', horizontalalignment = 'center')
 slider_syn1.on_changed(update_syn1_gain)
 
 axsynsl2 = plt.axes([0.8, 0.445, 0.15, 0.03])
-slider_syn2 = Slider(axsynsl2, 'Gain', 0, 0.75, valinit = g2[1][0])
+slider_syn2 = Slider(axsynsl2, 'Gain', 0, 1.5, valinit = g2[1][0])
 plt.figtext(0.875, 0.485, 'Synapse 2->1', horizontalalignment = 'center')
 slider_syn2.on_changed(update_syn2_gain)
 

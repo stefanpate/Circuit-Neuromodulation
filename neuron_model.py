@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Jul 23 2020
-
 Single neuron circuit model. Circuit consists of a parallel interconnection of
 an arbitrary number of either 'Current' or 'Conductance' elements
 
@@ -18,7 +16,7 @@ class SingleTimescaleElement():
     Parent class for elements depending on a single filtered voltage Vx
     timescale: required for every element
     v0: initial condition (optional)
-    v_index: assigned when interconnected in a circuit
+    v_index: index of Vx, assigned when interconnected in a circuit
     """
     
     vx0 = None # Default initial conditions for first-order filters
