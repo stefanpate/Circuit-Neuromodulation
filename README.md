@@ -7,17 +7,28 @@ Python implementation of the neuromorphic neuronal model described in:
 - [Neuromorphic Control](https://arxiv.org/abs/2011.04441) (Ribar and Sepulchre, 2020)
 
 ## Overview
-The repository provides a graphical interface to control the behavior of the neural circuit by shaping its I-V curves, as detailed in the paper. It is organized as follows:
-- `gui.py`: Main file that generates the interface for changing the parameters of the circuit and a live plot of the its behavior.
-- `neuron_model.py`: Definition of the neuron model.
-- `requirements.txt`: Python dependencies.
+### Model definition
+- `neuron_model.py`
+- `network_model.py`
 
-The repository also provides definitions for simulating network behavior:
-- `network_model.py`: Definitions of synaptic and resistive interconnections, uses `neuron_model.py` for the nodal model.
-- `hco_gui.py`: Graphical interface for simulating a 2-neuron network with excitatory or inhibitory interconnections.
+The file `neuron_model.py` provides the definitions for both the current-based model described in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696) and the conductance-based model outlined in [Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441).
 
-Models `neuron_model.py` and `network_model.py` provide definitions for conductance-based elements as well. An example of a conductance-based model is shown in:
-- `gui_conductance.py`: Graphical interface for controlling a conductance-based equivalent of the current-based model in `gui.py`.
+A neuron is defined as an interconnection of an arbitrary number of either current source or conductance elements. Each conductance element is defined with a collection of gating variables defining the activation and inactivation dynamics. The dynamics of the current elements, as well as the gating variables, are given by linear first-order filters defined by their timescale.
+
+The file `network_model.py` provides the corresponding definitions for the current-based and conductance-based synaptic connections, along with resistive connections.
+
+A neural network is defined as an arbitrary collection of neurons as defined in `neuron_model.py` and a collection of synapses/resistive connections with their corresponding connectivity matrices.
+
+### Graphical interface
+- `gui.py`
+
+The I-V curve shaping graphical interface for controlling the neuronal behavior as detailed in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696). The file provides an interface for controlling the parameters of the 4-current bursting model with a live plot of the behavior and the corresponding I-V curves. An extended interface for controlling a 2-neuron network with excitatory or inhibitory connections is provided in `hco_gui.py`.
+
+Additionally, a graphical interface for controlling an equivalent conductance-based model ([Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441)) with 4 activating conductances is provided in:
+- `gui_conductance.py`
+
+### Requirements
+- `requirements.txt`
 
 ## Reference
 ```
