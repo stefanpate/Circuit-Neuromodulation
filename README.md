@@ -26,6 +26,12 @@ The I-V curve shaping graphical interface for controlling the neuronal behavior 
 
 Additionally, a graphical interface for controlling an equivalent conductance-based model ([Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441)) with 4 activating conductances is provided in `gui_conductance.py`.
 
+### Examples
+- `single_neuron_example`
+- `network_example`
+
+The examples show how the model definitions are used to construct neurons and networks of neurons.
+
 ### Requirements
 - `requirements.txt`
 
