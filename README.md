@@ -1,4 +1,4 @@
-# Neuromorphic Control
+# Neuromorphic Neuromodulation
 Contact: Luka Ribar (lukaribar.mg@gmail.com)
 
 Python implementation of the neuromorphic neuronal model described in:
