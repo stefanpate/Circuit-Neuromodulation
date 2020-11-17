@@ -1,6 +1,4 @@
 # Neuromorphic Neuromodulation
-Contact: Luka Ribar (lukaribar.mg@gmail.com)
-
 Python implementation of the neuromorphic neuronal model described in:
 
 - [Neuromodulation of Neuromorphic Circuits](https://arxiv.org/abs/1805.05696) (Ribar and Sepulchre, IEEE Transactions on Circuits and Systems, 2019)
