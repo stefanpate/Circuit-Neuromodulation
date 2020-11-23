@@ -173,6 +173,11 @@ class Neuron:
         return s
     
     def sys(self, i_app, y):
+        """
+        Returns the state vector update
+        y[0] = membrane voltage
+        y[1],y[2],... = Element first-order filters, in order of definition
+        """
         dy = []
         dvmem = (i_app - self.i_sum(y)) / self.C
         dy.append(dvmem)

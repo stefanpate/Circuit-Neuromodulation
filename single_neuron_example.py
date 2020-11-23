@@ -40,5 +40,6 @@ y0 = neuron.get_init_conditions()
 sol = solve_ivp(odesys, trange, y0)
 
 # Plot simulation
+# y[0] = membrane voltage, y[1] = slow voltage, y[2] = ultra-slow voltage
 plt.figure()
 plt.plot(sol.t, sol.y[0],sol.t, sol.y[1],sol.t, sol.y[2])

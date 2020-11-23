@@ -63,5 +63,6 @@ y0 = network.get_init_conditions()
 sol = solve_ivp(odesys, trange, y0)
 
 # Plot simulation
+# y[0] = neuron 1 membrane voltage, y[3] = neuron 2 membrane voltage
 plt.figure()
 plt.plot(sol.t, sol.y[0], sol.t, sol.y[3])

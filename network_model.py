@@ -110,7 +110,11 @@ class Network:
     def get_init_conditions(self):
         return self.y0
         
-    def sys(self, i_app, y):             
+    def sys(self, i_app, y):
+        """
+        Returns the state vector update
+        y = vector containing states of all neurons, in order of definition
+        """
         dy = []
         
         for i, neuron_i in enumerate(self.neurons):
