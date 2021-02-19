@@ -14,9 +14,11 @@ import numpy as np
 from time import time
 from collections import deque
 
-from neuron_model import Resistor, CurrentElement, Neuron
+from neuron_model import Neuron
 
-plt.ion()
+plt.ion() # turn the interactive mode on
+
+# **** DEFINE INITIAL PARAMETERS AND NEURON MODEL ****************************
 
 # Initial conductance parameters
 a_f = -2
@@ -44,16 +46,33 @@ tf = 0
 ts = 50
 tus = 50*50
 
-# Define circuit elements:
-# i1 = fast -ve, i2 = slow +ve, i3 = slow -ve, i4 = ultraslow +ve conductance
-R = Resistor(1)
-i1 = CurrentElement(a_f, voff_f, tf)
-i2 = CurrentElement(a_s1, voff_s1, ts)
-i3 = CurrentElement(a_s2, voff_s2, ts)
-i4 = CurrentElement(a_us, voff_us, tus)
+# Define an empty neuron and then interconnect the elements
+neuron = Neuron()
+R = neuron.add_conductance(1)
+i1 = neuron.add_current(a_f, voff_f, tf) # fast negative conductance
+i2 = neuron.add_current(a_s1, voff_s1, ts) # slow positive conductance
+i3 = neuron.add_current(a_s2, voff_s2, ts) # slow negative conductance
+i4 = neuron.add_current(a_us, voff_us, tus) # ultraslow positive conductance
 
-# Interconnect the elements
-neuron = Neuron(R, i1, i2, i3, i4)
+# **** UPDATE I-V CURVES ****
+def update_IV_curves():
+    global I_fast, I_slow, I_ultraslow
+    
+    # Update I-V curves
+    I_fast = neuron.IV(V, tf)
+    I_slow = neuron.IV(V, ts)
+    I_ultraslow = neuron.IV(V, tus)
+    
+    # Update +/- slope sections
+    update_fast_vector()
+    update_slow_vector()
+    
+    # Plot the I-V curves
+    plot_fast()
+    plot_slow()
+    plot_ultraslow()
+
+# **** FUNCTIONS THAT TRACK SLOPE CHANGES IN THE I-V CURVES ******************
 
 def update_fast_vector():
     # Create a list of sections for the fast I-V curve
@@ -129,8 +148,9 @@ def update_slow_vector():
             slow_vector.append([prev, i+2, 'C1']) # Slow -ve
         slope = not(slope)
         prev = i+1
-        
-# Plot from the lists of sections       
+
+# **** FUNCTIONS FOR PLOTTING I-V CURVES *************************************
+         
 def plot_fast():
     axf.cla()
     axf.set_xlabel('V')
@@ -155,7 +175,7 @@ def plot_slow():
         col = el[2]
         axs.plot(V[i1:i2], I_slow[i1:i2], col)        
 
-def plot_ultra_slow():
+def plot_ultraslow():
     axus.cla()
     axus.set_xlabel('V')
     axus.set_ylabel('I')
@@ -169,99 +189,64 @@ def plot_ultra_slow():
     
     axus.plot(V, np.ones(len(V)) * i_app_const,'C2')
 
+# **** FUNCTIONS TO UPDATE PARAMETERS ON GUI CHANGES *************************
+
 def update_iapp(val):
     global i_app_const, i_app
     i_app_const = val
     i_app = lambda t: i_app_const
-    plot_ultra_slow()
+    
+    update_IV_curves()
 
 def update_fast1(val):
     global i1, I_fast, I_slow, I_ultraslow
     i1.a = -val
-    I_fast = I_passive + i1.out(V)
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
     
-    update_fast_vector()
-    update_slow_vector()
-    
-    plot_fast()
-    plot_slow()
-    plot_ultra_slow()
-    
+    update_IV_curves()
+     
 def update_fast2(val):
     global i1, I_fast, I_slow, I_ultraslow
     i1.voff = val
-    I_fast = I_passive + i1.out(V)
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
-
-    update_fast_vector()
-    update_slow_vector()
     
-    plot_fast()
-    plot_slow()
-    plot_ultra_slow()
-
+    update_IV_curves()
+    
 def update_slow11(val):
     global i2, I_fast, I_slow, I_ultraslow
     i2.a = val
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
     
-    update_slow_vector()
-    
-    plot_slow()
-    plot_ultra_slow()
+    update_IV_curves()
     
 def update_slow12(val):
     global i2, I_fast, I_slow, I_ultraslow
     i2.voff = val
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
     
-    update_slow_vector()
-    
-    plot_slow()
-    plot_ultra_slow()
-    
+    update_IV_curves()
+        
 def update_slow21(val):
     global i3, I_fast, I_slow, I_ultraslow
     i3.a = -val
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
     
-    update_slow_vector()
+    update_IV_curves()
     
-    plot_slow()
-    plot_ultra_slow()
-
 def update_slow22(val):
     global i3, I_fast, I_slow, I_ultraslow
     i3.voff = val
-    I_slow = I_fast + i2.out(V) + i3.out(V)
-    I_ultraslow = I_slow + i4.out(V)
     
-    update_slow_vector()
-    
-    plot_slow()
-    plot_ultra_slow()
+    update_IV_curves()
 
 def update_ultraslow1(val):
     global i4, I_fast, I_slow, I_ultraslow
     i4.a = val
-    I_ultraslow = I_slow + i4.out(V)
         
-    plot_ultra_slow()
-
+    update_IV_curves()
+    
 def update_ultraslow2(val):
     global i4, I_fast, I_slow, I_ultraslow
     i4.voff = val
-    I_ultraslow = I_slow + i4.out(V)
 
-    plot_ultra_slow()
+    update_IV_curves()
     
-# Input pulse event
+    
 def pulse(event):
     global pulse_on, tend, i_app
     
@@ -282,16 +267,7 @@ def pause(event):
     else:
         button_pause.label.set_text('Pause')
 
-# Plot I-V curves
-V = np.arange(-3,3.1,0.1)
-I_passive = V
-I_fast = I_passive + i1.out(V)
-I_slow = I_fast + i2.out(V) + i3.out(V)
-I_ultraslow = I_slow + i4.out(V)
-
-# Find initial sections
-update_fast_vector()
-update_slow_vector()
+# **** DRAW GRAPHICAL USER INTERFACE *****************************************
 
 # Close pre-existing figures
 plt.close("all")
@@ -301,17 +277,14 @@ fig = plt.figure()
 # Fast I-V curve
 axf = fig.add_subplot(2, 3, 1)
 axf.set_position([0.1, 0.75, 0.2, 0.2])
-plot_fast()
 
 # Slow I-V curve
 axs = fig.add_subplot(2, 3, 2)
 axs.set_position([0.4, 0.75, 0.2, 0.2])
-plot_slow()
 
 # Ultraslow I-V curve
 axus = fig.add_subplot(2, 3, 3)
 axus.set_position([0.7, 0.75, 0.2, 0.2])
-plot_ultra_slow()
 
 # Time - Voltage plot
 axsim = fig.add_subplot(2, 3, 4)
@@ -319,7 +292,6 @@ axsim.set_position([0.1, 0.45, 0.8, 0.2])
 axsim.set_ylim((-5, 5))
 axsim.set_xlabel('Time')
 axsim.set_ylabel('V')
-#axsim.grid()
 
 # Sliders for fast negative conductance
 axf1 = plt.axes([0.1, 0.3, 0.3, 0.03])
@@ -373,6 +345,12 @@ plt.figtext(0.25, 0.34, 'Fast -ve', horizontalalignment = 'center')
 plt.figtext(0.25, 0.19, 'Slow +ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.34, 'Slow -ve', horizontalalignment = 'center')
 plt.figtext(0.75, 0.19, 'Ultraslow +ve', horizontalalignment = 'center')
+
+# **** PLOT THE I-V CURVES AND SIMULATION DATA *******************************
+
+# Plot I-V curves
+V = np.arange(-3,3.1,0.1)
+update_IV_curves()
 
 # Live simulation
 t0 = 0
