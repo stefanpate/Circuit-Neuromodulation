@@ -7,9 +7,69 @@ an arbitrary number of either 'Current' or 'Conductance' elements
 """
 from numpy import tanh, exp
 import numpy as np
+from scipy.integrate import solve_ivp, BDF
 
 def sigmoid(x, k = 1):
     return 1 / (1 + exp(-k * (x)))
+
+class EulerSolver():
+    def __init__(self, odesys, t0, y0, dt):
+        self.odesys = odesys
+        self.t = t0
+        self.y = y0
+        self.dt = dt
+        
+    def step(self):
+        self.y += self.odesys(self.t,self.y)*self.dt
+        self.t += self.dt
+        
+        # Return error message for compatibility with scipy solvers
+        errorMessage = False
+        return errorMessage
+
+class System():
+    """
+    Parent class implementing basic simulation methods
+    """
+    def __init__(self):
+        self.y0 = []
+    
+    def sys(self):
+        pass
+    
+    def set_solver(self, solver, i_app, t0, sstep, dt = 1):
+        def odesys(t, y):
+            return self.sys(i_app(t), y)
+        
+        if (solver == "Euler"):
+            self.solver = EulerSolver(odesys, t0, self.y0, dt)  
+        elif (solver == "BDF"):
+            self.solver = BDF(odesys, t0, self.y0, np.inf, max_step = sstep)
+        else:
+            raise ValueError("Undefined solver")
+    
+    def step(self):
+        msg = self.solver.step()
+        t = self.solver.t
+        y = self.solver.y
+        if msg:
+            raise ValueError('Solver terminated with message: %s ' % msg)
+            
+        return t,y
+    
+    def simulate(self, trange, i_app, method = "Default", dt = 1):
+        def odesys(t, y):
+            return self.sys(i_app(t), y)
+        
+        if (method == "Default"):
+            sol = solve_ivp(odesys, trange, self.y0)
+        elif (method == "Euler"):
+            print("Implement this")
+        else:
+            raise ValueError("Undefined solver")
+            
+        return sol
+        
 
 class SingleTimescaleElement():
     """
@@ -72,8 +132,7 @@ class SingleTimescaleElement():
         else:
             return self.out(Vrest)
         
-
-class Neuron:
+class Neuron(System):
     """
     Parallel interconnection of current or conductance elements
     C dV/dT = - sum(I_x) + Iapp
@@ -126,6 +185,12 @@ class Neuron:
             
         def out(self, V):
             return (self.a * tanh(V - self.voff))
+        
+        def update_a(self, a):
+            self.a = a
+            
+        def update_voff(self, voff):
+            self.voff = voff
             
     class ConductanceElement:
         """
@@ -154,6 +219,12 @@ class Neuron:
                    
             def out(self, V):
                 return sigmoid(V - self.voff, self.k)
+            
+            def update_voff(self, voff):
+                self.voff = voff
+                
+            def update_k(self, k):
+                self.k = k
         
         # Add a gating variable to the conductance element
         def add_gate(self, k, voff, timescale, v0 = None):
@@ -165,13 +236,19 @@ class Neuron:
             iout = self.g_max * (V - self.E_rev)
             for x in self.gates:
                 iout *= x.out(V)
-                return iout  
+            return iout  
         
         def outx(self, y):
             iout = self.g_max * (y[0] - self.E_rev)
             for x in self.gates:
                 iout *= x.outx(y)
             return iout
+        
+        def update_g_max(self, g_max):
+            self.g_max = g_max
+            
+        def update_E_rev(self, E_rev):
+            self.E_rev = E_rev
         
         def IV(self, V, tau, Vrest = 0):
             I = self.g_max * (V - self.E_rev)
@@ -191,6 +268,13 @@ class Neuron:
         for el in self.elements:
             I += el.IV(V, tau, Vrest)
         
+        return I
+    
+    def IV_ss(self, V):
+        I = 0
+        for el in self.elements:
+            I += el.out(V)
+            
         return I
         
     def get_init_conditions(self):
@@ -219,4 +303,4 @@ class Neuron:
         for index, tau in enumerate(self.timescales[1:]):
             dy.append((y[0] - y[index+1]) / tau)
         
-        return np.array(dy)
+        return np.array(dy)        

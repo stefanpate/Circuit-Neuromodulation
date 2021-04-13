@@ -8,7 +8,6 @@ An example of a single-neuron simulation
 import matplotlib.pyplot as plt
 
 from neuron_model import Neuron
-from scipy.integrate import solve_ivp
 
 # Define timescales
 tf = 0
@@ -27,15 +26,7 @@ i4 = neuron.add_current(1.5, -1.5, tus) # ultraslow positive conductance
 trange = (0, 10000)
 i_app = lambda t: -2 # define i_app as function of t
 
-# Return dy/dt of the system
-def odesys(t, y):
-    return neuron.sys(i_app(t),y)
-
-# Initial conditions
-y0 = neuron.get_init_conditions()
-
-# ODE solver
-sol = solve_ivp(odesys, trange, y0)
+sol = neuron.simulate(trange, i_app)
 
 # Plot simulation
 # y[0] - membrane voltage, y[1] - slow voltage, y[2] - ultra-slow voltage
