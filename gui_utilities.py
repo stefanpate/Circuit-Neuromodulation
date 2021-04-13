@@ -64,6 +64,8 @@ class GUI:
         # Create empty plot
         plt.close("all")
         self.fig = plt.figure()
+        win = self.fig.canvas.window()
+        win.setFixedSize(win.size())
         self.axs_iv = []
         
         # Add simulation plot
