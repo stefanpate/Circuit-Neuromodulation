@@ -64,9 +64,16 @@ class GUI:
         # Create empty plot
         plt.close("all")
         self.fig = plt.figure()
-        win = self.fig.canvas.window()
-        win.setFixedSize(win.size())
-        self.axs_iv = []
+        
+        # Fix window size
+        bck = plt.get_backend()
+        if (bck == "Qt5Agg" or bck == "Qt4Agg"):
+            win = self.fig.canvas.window()
+            win.setFixedSize(win.size())
+        else:
+            print("IMPORTANT: Resizing figure is not supported")
+        
+        self.axs_iv = [] # list of IV curve objects
         
         # Add simulation plot
         self.axsim = self.fig.add_subplot(2, 3, 4)
