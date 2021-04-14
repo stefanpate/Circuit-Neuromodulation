@@ -9,7 +9,7 @@ Python implementation of the neuromorphic neuronal model described in:
 - `neuron_model.py`
 - `network_model.py`
 
-The file `neuron_model.py` provides the definitions for both the current-based model described in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696) and [Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441). A conductance-based extension of the model is provided as well.
+The file `neuron_model.py` provides the definitions for the current-based model described in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696) and [Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441). A conductance-based extension of the model is provided as well.
 
 A neuron is defined as an interconnection of an arbitrary number of either current source or conductance elements. Each conductance element is defined with a collection of gating variables defining the activation and inactivation dynamics. The dynamics of the current elements, as well as the gating variables, are given by linear first-order filters defined by their timescale.
 
