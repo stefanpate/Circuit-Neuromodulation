@@ -9,7 +9,7 @@ Python implementation of the neuromorphic neuronal model described in:
 - `neuron_model.py`
 - `network_model.py`
 
-The file `neuron_model.py` provides the definitions for both the current-based model described in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696) and the conductance-based model outlined in [Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441).
+The file `neuron_model.py` provides the definitions for both the current-based model described in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696) and [Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441). A conductance-based extension of the model is provided as well.
 
 A neuron is defined as an interconnection of an arbitrary number of either current source or conductance elements. Each conductance element is defined with a collection of gating variables defining the activation and inactivation dynamics. The dynamics of the current elements, as well as the gating variables, are given by linear first-order filters defined by their timescale.
 
@@ -22,13 +22,15 @@ A neural network is defined as an arbitrary collection of neurons as defined in 
 
 The I-V curve shaping graphical interface for controlling the neuronal behavior as detailed in [Ribar and Sepulchre, 2019](https://arxiv.org/abs/1805.05696). The file provides an interface for controlling the parameters of the 4-current bursting model with a live plot of the behavior and the corresponding I-V curves.
 
-Additionally, a graphical interface for controlling an equivalent conductance-based model ([Ribar and Sepulchre, 2020](https://arxiv.org/abs/2011.04441)) with 4 activating conductances is provided in `gui_conductance.py`.
+Additionally, a graphical interface for controlling an equivalent conductance-based model with 4 activating conductances is provided in `gui_conductance.py`.
+
+The required definitions are provided in `gui_utilities.py`.
 
 ### Examples
 - `single_neuron_example`
 - `network_example`
 
-The examples show how the model definitions are used to construct neurons and networks of neurons.
+The examples show how the model definitions are used to construct and simulate neurons and networks of neurons.
 
 ### Requirements
 - `requirements.txt`
