@@ -12,8 +12,8 @@ class Network(System):
     """
     Neural network:
         neurons: list containing all neurons
-        args: list of (synapse_model, g) tuples, so that for each synapse
-        there is a connectivity matrix g describing the connection strengths.
+        args: (synapse_model, g) tuples, so that for each synapse there is a
+        connectivity matrix g describing the connection strengths.
         
         Note: g[i][j] is the weight of the synaptic connection FROM neuron i TO
         neuron j.
