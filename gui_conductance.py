@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Graphical interface for generating and modulating single neuron behavior.
+Graphical interface for controlling single *conductance-based* neuron behavior.
 Neuron consists of 4 conductance elements with single activation variables
 representing fast -ve, slow +ve, slow -ve, and ultra-slow +ve conductance.
 
@@ -50,25 +49,34 @@ x4 = i4.add_gate(k4, voff4, tus)
 gui = GUI(neuron, i0 = -50, vmin = -100, vmax = 20, dv = 1.0, time_step = 0.1,
           plot_fixed_point = True, ymin = -120, ymax = 20, sstep=10, tint=3000)
 
+gui.add_sim_plot([0.1, 0.45, 0.8, 0.2])
 gui.add_IV_curve(neuron, "Fast", tf, [0.1, 0.75, 0.2, 0.2])
 gui.add_IV_curve(neuron, "Slow", ts, [0.4, 0.75, 0.2, 0.2])
 gui.add_IV_curve(neuron, "Ultraslow", tus, [0.7, 0.75, 0.2, 0.2])
 
 gui.add_label(0.25, 0.34, "Fast -ve")
-s1 = gui.add_slider("$g_{max}$", [0.1, 0.3, 0.3, 0.03], 0, 10, g1, i1.update_g_max)
-s2 = gui.add_slider("$V_{off}$", [0.1, 0.25, 0.3, 0.03], -75, 0, voff1, x1.update_voff)
+s1 = gui.add_slider("$g_{max}$", [0.1, 0.3, 0.3, 0.03], 0, 10, g1,
+                    i1.update_g_max)
+s2 = gui.add_slider("$V_{off}$", [0.1, 0.25, 0.3, 0.03], -75, 0, voff1,
+                    x1.update_voff)
 
 gui.add_label(0.25, 0.19, "Slow +ve")
-s3 = gui.add_slider("$g_{max}$", [0.1, 0.15, 0.3, 0.03], 0, 10, g2, i2.update_g_max)
-s4 = gui.add_slider("$V_{off}$", [0.1, 0.1, 0.3, 0.03], -75, 0, voff2, x2.update_voff)
+s3 = gui.add_slider("$g_{max}$", [0.1, 0.15, 0.3, 0.03], 0, 10, g2,
+                    i2.update_g_max)
+s4 = gui.add_slider("$V_{off}$", [0.1, 0.1, 0.3, 0.03], -75, 0, voff2,
+                    x2.update_voff)
 
 gui.add_label(0.75, 0.34, "Slow -ve")
-s5 = gui.add_slider("$g_{max}$", [0.6, 0.3, 0.3, 0.03], 0, 10, g3, i3.update_g_max)
-s6 = gui.add_slider("$V_{off}$", [0.6, 0.25, 0.3, 0.03], -75, 0, voff3, x3.update_voff)
+s5 = gui.add_slider("$g_{max}$", [0.6, 0.3, 0.3, 0.03], 0, 10, g3,
+                    i3.update_g_max)
+s6 = gui.add_slider("$V_{off}$", [0.6, 0.25, 0.3, 0.03], -75, 0, voff3,
+                    x3.update_voff)
 
 gui.add_label(0.75, 0.19, "UltraSlow +ve")
-s7 = gui.add_slider("$g_{max}$", [0.6, 0.15, 0.3, 0.03], 0, 10, g4, i4.update_g_max)
-s8 = gui.add_slider("$V_{off}$", [0.6, 0.1, 0.3, 0.03], -75, 0, voff4, x4.update_voff)
+s7 = gui.add_slider("$g_{max}$", [0.6, 0.15, 0.3, 0.03], 0, 10, g4,
+                    i4.update_g_max)
+s8 = gui.add_slider("$V_{off}$", [0.6, 0.1, 0.3, 0.03], -75, 0, voff4,
+                    x4.update_voff)
 
 s9 = gui.add_iapp_slider([0.1, 0.02, 0.5, 0.03], -100, 0)
 

@@ -39,8 +39,8 @@ class GUI:
         self.__dict__.update(kwargs) # Modify parameters
         
         # Colors of the +ve/-ve conductance regions
-        # First is +ve conductance, each successive is -ve conductance in next
-        # timescale
+        # First is +ve conductance, each successive is -ve conductance in the
+        # next timescale
         self.colors = ['C0', 'C3', 'C1', 'C6']
         
         self.system = system # associate GUI with a neuron or a network
@@ -55,9 +55,10 @@ class GUI:
         self.i_app_const = self.i0
         self.i_app = lambda t: self.i_app_const
         
-        self.IV_curves = []
+        self.IV_curves = [] # list of IV curve objects
         self.IV_size = 0
         
+        # Initial fixed point (guess)
         self.v_rest = 0
         self.I_ss_rest = 0
         
@@ -73,17 +74,18 @@ class GUI:
         else:
             print("IMPORTANT: Resizing figure is not supported")
         
-        self.axs_iv = [] # list of IV curve objects
+        self.axs_iv = [] # list of IV curve axis
+        self.axsim = None # simulation plot axis
         
-        # Add simulation plot
+        self.pause_value = False
+    
+    def add_sim_plot(self, coords):
         self.axsim = self.fig.add_subplot(2, 3, 4)
-        self.axsim.set_position([0.1, 0.45, 0.8, 0.2]) # move this 
+        self.axsim.set_position(coords)
         self.axsim.set_ylim((self.ymin, self.ymax))
         self.axsim.set_xlabel('Time')
         self.axsim.set_ylabel('V')
-        
-        self.pause_value = False
-        
+    
     def add_IV_curve(self, neuron, name, timescale, coords):
         self.IV_size += 1
         ax = self.fig.add_subplot(2, 3, self.IV_size)
@@ -176,11 +178,16 @@ class GUI:
     def pause(self, event):
         self.pause_value = not(self.pause_value)
     
-    def run(self, idx_list = [0]):        
+    def run(self, idx_list = [0]):
+        # Check if the simulation plot has been specified
+        if (self.axsim is None):
+            print("Time plot needs to be specified before running")
+            return
+            
         sstep = self.sstep
         tint = self.tint
         
-        # Get time plot background for easier replotting
+        # Get time plot background for faster replotting
         self.fig.canvas.draw()
         background = self.fig.canvas.copy_from_bbox(self.axsim.bbox)
         
@@ -196,7 +203,8 @@ class GUI:
         
         # Set the simulation solver
         t = 0
-        self.system.set_solver("Euler", self.i_app, t, sstep, dt = self.time_step)
+        self.system.set_solver("Euler", self.i_app, t, sstep,
+                               dt = self.time_step)
         
         while plt.fignum_exists(self.fig.number):
             while self.pause_value:
