@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 An example of a single-neuron simulation
 

@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Single neuron circuit model. Circuit consists of a parallel interconnection of
-an arbitrary number of either 'Current' or 'Conductance' elements
+Single neuron circuit model
+Circuit consists of a parallel interconnection of an arbitrary number of either
+'Current' or 'Conductance' elements
 
 @author: Luka
 """
@@ -13,6 +13,18 @@ def sigmoid(x, k = 1):
     return 1 / (1 + exp(-k * (x)))
 
 class EulerSolver():
+    """
+    ODE solver using the basic Euler step
+    
+    args:
+        odesys: f(t,y) -> dy/dt = f(t,y)
+        t0: initial time
+        y0: initial state
+        dt: time step
+    
+    methods:
+        step: iterate a single simulation step
+    """
     def __init__(self, odesys, t0, y0, dt):
         self.odesys = odesys
         self.t = t0
@@ -30,11 +42,16 @@ class EulerSolver():
 class System():
     """
     Parent class implementing basic simulation methods
+    
+    methods:
+        sys: f(i_app, y) -> dV/dt = f(i_app, y)
+        set_solver: set the ODE solver and simulation parameters
+        step: iterate a single simulation step and return next (t,y)
     """
     def __init__(self):
         self.y0 = []
     
-    def sys(self):
+    def sys(self, i_app, y):
         pass
     
     def set_solver(self, solver, i_app, t0, sstep, dt = 1):
@@ -64,7 +81,7 @@ class System():
         if (method == "Default"):
             sol = solve_ivp(odesys, trange, self.y0)
         elif (method == "Euler"):
-            print("Implement this")
+            print("Not implemented")
         else:
             raise ValueError("Undefined solver")
             
@@ -75,10 +92,18 @@ class SingleTimescaleElement():
     """
     Parent class for elements depending on a single filtered voltage Vx
     
-    neuron: pointer to the neuron containing the element
-    timescale: required for every element
-    v0: initial condition
-    v_index: index of Vx, assigned when interconnected in a circuit
+    args:
+        neuron: pointer to the neuron containing the element
+        timescale: time constant of the first-order filter
+        v0: initial condition
+        v_index: index of Vx, assigned when interconnected in a circuit
+        
+    methods:
+        out: Iout for input V
+        outx: Iout using the appropriate Vx (when interconnected)
+        IV: IV curve of the element in timescale tau
+            -> return out(V) if tau <= timescale
+            -> return out(Vrest) if tau > timescale
     """
     
     vx0 = None # Default initial conditions for first-order filters
@@ -138,7 +163,18 @@ class Neuron(System):
     C dV/dT = - sum(I_x) + Iapp
     where I_x is the output current of each current/conductance element
 
-    kwargs: circuit parameters (membrane capapcitance, initial condition)
+    kwargs:
+        C: membrane capacitance
+        v0: initial voltage
+        vx0: default initial state for current/conductance elements
+    
+    methods:
+        add_current: add current element
+        add_conductance: add conductance element
+        IV: IV curve in timescale tau and resting voltage Vrest
+        IV_ss: steady-state IV curve
+        get_init_conditions: return y0
+        i_sum: sum(Ix) for all conductance/circuit elements
     """
 
     # Membrane capacitor value + init conditions
@@ -159,7 +195,6 @@ class Neuron(System):
                 
         self.elements = [] # List containing all circuit elements
         
-    # Functions for interconnecting individual elements
     def add_current(self, a, voff, timescale, v0 = None):
         I = self.CurrentElement(self, a, voff, timescale, v0)
         self.elements.append(I)
@@ -170,6 +205,48 @@ class Neuron(System):
         self.elements.append(I)
         return I
                 
+    def IV(self, V, tau, Vrest = 0):
+        I = 0
+        for el in self.elements:
+            I += el.IV(V, tau, Vrest)
+        
+        return I
+    
+    def IV_ss(self, V):
+        I = 0
+        for el in self.elements:
+            I += el.out(V)
+            
+        return I
+        
+    def get_init_conditions(self):
+        return np.array(self.y0)
+    
+    def i_sum(self, y):
+        """
+        Returns total internal current
+        """
+        s = 0
+        for el in self.elements:
+            s += el.outx(y)
+        return s
+    
+    def sys(self, i_app, y):
+        """
+        Returns the state vector update
+        y[0] = membrane voltage
+        y[1],y[2],... = Element first-order filters, in order of definition
+        """
+        dy = []
+        dvmem = (i_app - self.i_sum(y)) / self.C
+        dy.append(dvmem)
+        
+        # First-order filters
+        for index, tau in enumerate(self.timescales[1:]):
+            dy.append((y[0] - y[index+1]) / tau)
+        
+        return np.array(dy)
+
     class CurrentElement(SingleTimescaleElement):
         """
         Current element of the form:
@@ -262,45 +339,3 @@ class Neuron(System):
                 I *= g.out(Vrest)
             
             return I
-    
-    def IV(self, V, tau, Vrest = 0):
-        I = 0
-        for el in self.elements:
-            I += el.IV(V, tau, Vrest)
-        
-        return I
-    
-    def IV_ss(self, V):
-        I = 0
-        for el in self.elements:
-            I += el.out(V)
-            
-        return I
-        
-    def get_init_conditions(self):
-        return np.array(self.y0)
-    
-    def i_sum(self, y):
-        """
-        Returns total internal current
-        """
-        s = 0
-        for el in self.elements:
-            s += el.outx(y)
-        return s
-    
-    def sys(self, i_app, y):
-        """
-        Returns the state vector update
-        y[0] = membrane voltage
-        y[1],y[2],... = Element first-order filters, in order of definition
-        """
-        dy = []
-        dvmem = (i_app - self.i_sum(y)) / self.C
-        dy.append(dvmem)
-        
-        # First-order filters
-        for index, tau in enumerate(self.timescales[1:]):
-            dy.append((y[0] - y[index+1]) / tau)
-        
-        return np.array(dy)        
