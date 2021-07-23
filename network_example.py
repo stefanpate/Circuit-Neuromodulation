@@ -1,6 +1,5 @@
 """
 An example of a network simulation
-
 @author: Luka
 """
 
@@ -30,7 +29,7 @@ for j in range(2):
     neurons.append(neuron)
 
 # Define the connectivity matrices
-g_inh = [[0, .2], [0, 0]] # inhibitory connection neuron 1 -| neuron 2
+g_inh = [[0, 0.2], [0.2, 0]] # inhibitory connection neuron 1 -| neuron 2
 g_exc = [[0, 0], [0, 0]] # excitatory connection neuron 1 <- neuron 2
 g_res = [[0, 0], [0, 0]] # resistive connections
 
@@ -47,7 +46,7 @@ network = Network(neurons, (inh_synapse, g_inh), (exc_synapse, g_exc),
 trange = (0, 20000)
 
 # Define i_app as a function of t: returns an i_app for each neuron
-i_app = lambda t: [-2.1, -2]
+i_app = lambda t: [0, 0]
 
 sol = network.simulate(trange, i_app)
 
@@ -55,3 +54,4 @@ sol = network.simulate(trange, i_app)
 # y[0] = neuron 1 membrane voltage, y[3] = neuron 2 membrane voltage
 plt.figure()
 plt.plot(sol.t, sol.y[0], sol.t, sol.y[3])
+plt.show()

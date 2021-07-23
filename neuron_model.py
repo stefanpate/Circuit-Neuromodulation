@@ -103,7 +103,8 @@ class SingleTimescaleElement():
         outx: Iout using the appropriate Vx (when interconnected)
         IV: IV curve of the element in timescale tau
             -> return out(V) if tau <= timescale
-            -> return out(Vrest) if tau > timescale
+            -> return out(Vrest) if tafoo = [0]
+foo is not Noneu > timescale
     """
     
     vx0 = None # Default initial conditions for first-order filters
@@ -293,7 +294,7 @@ class Neuron(System):
                     
                 self.k = k
                 self.voff = voff
-                   
+                
             def out(self, V):
                 return sigmoid(V - self.voff, self.k)
             

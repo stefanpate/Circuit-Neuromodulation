@@ -72,6 +72,16 @@ class Network(System):
         
         return np.array(dy)
     
+    def update_temp(self, temp):
+        '''
+        Convenience function to change temp in all neurons
+        '''
+        for elt in self.neurons:
+            elt.update_temp(temp)
+    
+    def get_temp():
+        pass
+    
 class Interconnection():
     """
     Arbitrary interconnecting element between two neurons
