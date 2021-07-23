@@ -62,7 +62,14 @@ class Network(System):
                 # Iterate through all synaptic and resistive connections
                 for syn, g in self.synapses:
                     tau = syn.timescale
-                    Vpre = y[index_j + neuron_j.timescales.index(tau)]
+                    sign = syn.sign # DELETE this is just a temporary fix
+                    # DELETE temporary
+                    if sign < 0:
+                        offset = 2
+                    else:
+                        offset = 0
+                    # Vpre = y[index_j + neuron_j.timescales.index([sign, tau])]
+                    Vpre = y[index_j + offset] # DELETE temporary
                     i_syn = i_syn + g[j][i] * syn.out(Vpre, Vpost)
                         
             i_external = i_app[i] + i_syn
@@ -89,6 +96,8 @@ class Interconnection():
     
     def __init__(self, timescale):
         self.timescale = timescale # element is instantaneous by default
+        self.qg_range = (1,2)
+        self.qtau_range = (1,4)
     
     def check_connectivity_matrix(self, g, n):
         if np.array(g).shape != (n, n):
@@ -138,6 +147,7 @@ class ResistorInterconnection(Interconnection):
     
     def __init__(self):
         super().__init__(0)
+        self.sign = 0
     
     def check_connectivity_matrix(self, g, n):
         super().check_connectivity_matrix(g,n)

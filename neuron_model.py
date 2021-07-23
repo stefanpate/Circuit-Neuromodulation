@@ -8,6 +8,7 @@ Circuit consists of a parallel interconnection of an arbitrary number of either
 from numpy import tanh, exp
 import numpy as np
 from scipy.integrate import solve_ivp, BDF
+# from copy import deepcopy
 
 def sigmoid(x, k = 1):
     return 1 / (1 + exp(-k * (x)))
@@ -103,35 +104,35 @@ class SingleTimescaleElement():
         outx: Iout using the appropriate Vx (when interconnected)
         IV: IV curve of the element in timescale tau
             -> return out(V) if tau <= timescale
-            -> return out(Vrest) if tafoo = [0]
-foo is not Noneu > timescale
+            -> return out(Vrest) if tau > timescale
     """
     
     vx0 = None # Default initial conditions for first-order filters
     
-    def __init__(self, neuron, timescale, v0):
+    def __init__(self, neuron, sign, timescale, v0):
         self.neuron = neuron
         self.timescale = timescale
         self.v0 = v0
         self.v_index = None
+        self.sign = sign
         
         if (timescale == 0) and (v0 is not None):
             raise ValueError("Initial condition of an instantaneous element "
                              "cannot be set")
         
-        self._add_timescale(neuron.timescales, neuron.y0)
+        self._add_timescale(neuron.timescales, neuron.y0, neuron._add_q10s)
     
-    def _add_timescale(self, timescales, y0):
+    def _add_timescale(self, timescales, y0, add_q10s_fcn):
         """
         Add a first-order filter for Vx, or associate the element with an
         existing Vx
         """
-        
-        if (self.timescale in timescales) and (self.v0 is None):
-            self.v_index = timescales.index(self.timescale)
+        if ([self.sign, self.timescale] in timescales) and (self.v0 is None):
+            self.v_index = timescales.index([self.sign, self.timescale])
         else:
-            timescales.append(self.timescale)
-            self.v_index = len(timescales) - 1
+            timescales.append([self.sign, self.timescale])
+            self.v_index = len(timescales) -1
+            add_q10s_fcn(self.v_index)
             if (self.v0):
                 y0.append(self.v0)
             else:
@@ -179,7 +180,7 @@ class Neuron(System):
     """
 
     # Membrane capacitor value + init conditions
-    _stdPar = {'C': 1, 'v0': -1.9, 'vx0': -1.8}
+    _stdPar = {'C': 1, 'v0': -1.9, 'vx0': -1.8, 'tref': 10, 'temp': 10, 'seed': 0, 'qg_range': (1,2), 'qtau_range': (1,4)}
     
     @property
     def stdPar(self):
@@ -191,19 +192,36 @@ class Neuron(System):
         
         SingleTimescaleElement.vx0 = self.vx0 # Default initial conditions
         
-        self.timescales = [0] # Timescales of membrane voltage + all filters
+        self.timescales = [[0, 0]] # Sign-timescale pairs of membrane voltage + all filters
         self.y0 = [self.v0] # Initial conditions
                 
         self.elements = [] # List containing all circuit elements
+        self.q10s = [[None, None]]
+        # self.nominal = deepcopy(self)
+
+    def _add_q10s(self, v_index):
+        rs = np.random.RandomState(self.seed + v_index)
+        q10_g = rs.uniform(self.qg_range[0], self.qg_range[1])
+        q10_tau = rs.uniform(self.qtau_range[0], self.qtau_range[1])
+        self.q10s.append([q10_g, q10_tau])
+    
+    def update_temp(self, temp):
+        for elt in self.elements[1:]: # Skip leak conductance
+            elt._update_temp_g(temp) # Scale max g
+            self.timescales[elt.v_index][1] *= self.q10s[elt.v_index][1]**((temp - self.tref) / 10) # Tau Q10s in second col
+        self.temp = temp # Keep track of current temp
+
         
     def add_current(self, a, voff, timescale, v0 = None):
         I = self.CurrentElement(self, a, voff, timescale, v0)
         self.elements.append(I)
+        # self.nominal = deepcopy(self)
         return I
         
     def add_conductance(self, g_max, E_rev = 0):
         I = self.ConductanceElement(self, g_max, E_rev)
         self.elements.append(I)
+        # self.nominal = deepcopy(self)
         return I
                 
     def IV(self, V, tau, Vrest = 0):
@@ -243,8 +261,8 @@ class Neuron(System):
         dy.append(dvmem)
         
         # First-order filters
-        for index, tau in enumerate(self.timescales[1:]):
-            dy.append((y[0] - y[index+1]) / tau)
+        for index, elt in enumerate(self.timescales[1:]):
+            dy.append((y[0] - y[index+1]) / elt[1]) # Second col of elt is tau
         
         return np.array(dy)
 
@@ -256,11 +274,12 @@ class Neuron(System):
         """                                
         
         def __init__(self, neuron, a, voff, timescale, v0):
-            super().__init__(neuron, timescale, v0)
+            sign = np.sign(a).astype(int)
+            super().__init__(neuron, sign, timescale, v0)
                         
             self.a = a
             self.voff = voff
-            
+                                
         def out(self, V):
             return (self.a * tanh(V - self.voff))
         
@@ -269,7 +288,10 @@ class Neuron(System):
             
         def update_voff(self, voff):
             self.voff = voff
-            
+
+        def _update_temp_g(self, temp):
+            self.a *= self.neuron.q10s[self.v_index][0]**((temp - self.neuron.tref) / 10) # Conductance Q10s in first col
+
     class ConductanceElement:
         """
         Single conductance element consisting of multiple gates:
